@@ -1,8 +1,7 @@
-import { Body, HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Produto } from "../entities/produto.entity";
 import { DeleteResult, ILike, LessThanOrEqual, MoreThanOrEqual, Repository } from "typeorm";
-import { Categoria } from "../../categoria/entities/categoria.entity";
 import { CategoriaService } from "../../categoria/services/categoria.service";
 
 @Injectable()
@@ -10,16 +9,24 @@ export class ProdutoService {
     constructor(
         @InjectRepository(Produto)
         private produtoRepository: Repository<Produto>,
-        //     private categoriaService: CategoriaService
+        private categoriaService: CategoriaService
     ) { }
 
     async findAll(): Promise<Produto[]> {
-        return await this.produtoRepository.find();
+        return await this.produtoRepository.find({
+            relations: {
+                categoria: true,
+            }
+        }
+        );
     }
 
     async findById(id: number): Promise<Produto> {
         let buscaProduto = await this.produtoRepository.findOne({
-            where: { id }
+            where: { id },
+            relations: {
+                categoria: true,
+            },
         })
 
         if (!buscaProduto)
@@ -29,7 +36,10 @@ export class ProdutoService {
 
     async findByNome(nome: string): Promise<Produto[]> {
         return await this.produtoRepository.find({
-            where: { nome: ILike(`%${nome}%`) }
+            where: { nome: ILike(`%${nome}%`) },
+            relations: {
+                categoria: true,
+            }
         })
     }
 
@@ -40,6 +50,9 @@ export class ProdutoService {
             },
             order: {
                 preco: "ASC"
+            },
+            relations: {
+                categoria: true,
             }
         })
     }
@@ -51,17 +64,20 @@ export class ProdutoService {
             },
             order: {
                 preco: "DESC"
+            },
+            relations: {
+                categoria: true,
             }
         })
     }
 
     async create(produto: Produto): Promise<Produto> {
 
-        // if (produto.categoria) {
-        //     await this.categoriaService.findById(produto.categoria.id);
+        if (produto.categoria) {
+            await this.categoriaService.findById(produto.categoria.id);
 
-        //     return await this.produtoRepository.save(produto);
-        // }
+            return await this.produtoRepository.save(produto);
+        }
 
         return await this.produtoRepository.save(produto);
     }
@@ -73,11 +89,11 @@ export class ProdutoService {
             throw new HttpException("É necessário passar o ID da produto a ser atualizada!", HttpStatus.NOT_FOUND)
         }
 
-        // if (produto.categoria) {
-        //     await this.categoriaService.findById(produto.categoria.id)
+        if (produto.categoria) {
+            await this.categoriaService.findById(produto.categoria.id)
 
-        //     return await this.produtoRepository.save(produto);
-        // }
+            return await this.produtoRepository.save(produto);
+        }
 
         return await this.produtoRepository.save(produto);
     }

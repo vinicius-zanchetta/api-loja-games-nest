@@ -30,7 +30,7 @@ export class Produto {
 
     @IsNumber({maxDecimalPlaces: 2})
     @IsNotEmpty()
-    @Column({type: "decimal", precision: 10, scale: 2})
+    @Column({type: "decimal", precision: 6, scale: 2})
     preco: number;
 
     @Transform(({ value }: TransformFnParams) => value?.trim())
