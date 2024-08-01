@@ -16,6 +16,7 @@ export class ProdutoService {
         return await this.produtoRepository.find({
             relations: {
                 categoria: true,
+                usuario: true
             }
         }
         );
@@ -26,6 +27,7 @@ export class ProdutoService {
             where: { id },
             relations: {
                 categoria: true,
+                usuario: true
             },
         })
 
@@ -39,6 +41,7 @@ export class ProdutoService {
             where: { nome: ILike(`%${nome}%`) },
             relations: {
                 categoria: true,
+                usuario: true
             }
         })
     }
@@ -53,6 +56,7 @@ export class ProdutoService {
             },
             relations: {
                 categoria: true,
+                usuario: true
             }
         })
     }
@@ -67,6 +71,7 @@ export class ProdutoService {
             },
             relations: {
                 categoria: true,
+                usuario: true
             }
         })
     }
